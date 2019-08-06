@@ -17,8 +17,8 @@ import time
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-CHUNK_DURATION_MS = 30       # supports 10, 20 and 30 (ms)
-PADDING_DURATION_MS = 1500   # 1 sec jugement
+CHUNK_DURATION_MS = 30  # supports 10, 20 and 30 (ms)
+PADDING_DURATION_MS = 1500  # 1 sec jugement
 CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read
 CHUNK_BYTES = CHUNK_SIZE * 2  # 16bit = 2 bytes, PCM
 NUM_PADDING_CHUNKS = int(PADDING_DURATION_MS / CHUNK_DURATION_MS)
@@ -38,7 +38,6 @@ stream = pa.open(format=FORMAT,
                  start=False,
                  # input_device_index=2,
                  frames_per_buffer=CHUNK_SIZE)
-
 
 got_a_sentence = False
 leave = False
@@ -70,6 +69,7 @@ def normalize(snd_data):
     for i in snd_data:
         r.append(int(i * times))
     return r
+
 
 signal.signal(signal.SIGINT, handle_int)
 
