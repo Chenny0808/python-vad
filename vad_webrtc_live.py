@@ -16,7 +16,7 @@ import time
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 16000
+RATE = 16000  # 采样频率
 CHUNK_DURATION_MS = 30  # supports 10, 20 and 30 (ms)
 PADDING_DURATION_MS = 1500  # 1 sec jugement
 CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read
