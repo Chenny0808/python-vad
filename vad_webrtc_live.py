@@ -28,7 +28,7 @@ NUM_WINDOW_CHUNKS_END = NUM_WINDOW_CHUNKS * 2
 
 START_OFFSET = int(NUM_WINDOW_CHUNKS * CHUNK_DURATION_MS * 0.5 * RATE)
 
-vad = webrtcvad.Vad(1)
+vad = webrtcvad.Vad(2)
 
 pa = pyaudio.PyAudio()
 stream = pa.open(format=FORMAT,
@@ -36,7 +36,7 @@ stream = pa.open(format=FORMAT,
                  rate=RATE,
                  input=True,
                  start=False,
-                 # input_device_index=2,
+                 input_device_index=1,
                  frames_per_buffer=CHUNK_SIZE)
 
 got_a_sentence = False
