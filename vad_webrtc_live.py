@@ -1,8 +1,13 @@
-'''
-Requirements:
-+ pyaudio - `pip install pyaudio`
-+ py-webrtcvad - `pip install webrtcvad`
-'''
+# -*- encoding: utf-8 -*-
+"""
+@File    : vad_webrtc_live.py
+@Time    : 2019/8/22 上午10:04
+@Author  : gpc
+@Email   : 159***723@163.com
+@Software: PyCharm
+@desc    :webrtc的vad使用GMM(Gaussian Mixture Mode)对语音和噪音建模，通过相应的概率来
+            判断语音和噪声，这种算法的优点是它是无监督的，不需要严格的训练。
+"""
 import webrtcvad
 import collections
 import sys
@@ -14,11 +19,11 @@ from struct import pack
 import wave
 import time
 
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
+FORMAT = pyaudio.paInt16  # 定义数据流块
+CHANNELS = 1  # 声道数：可以是单声道或者是双声道
 RATE = 16000  # 采样频率
-CHUNK_DURATION_MS = 30  # supports 10, 20 and 30 (ms)
-PADDING_DURATION_MS = 1500  # 1 sec jugement
+CHUNK_DURATION_MS = 30       # supports 10, 20 and 30 (ms)  # 帧长
+PADDING_DURATION_MS = 1500   # 1 sec jugement
 CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read
 CHUNK_BYTES = CHUNK_SIZE * 2  # 16bit = 2 bytes, PCM
 NUM_PADDING_CHUNKS = int(PADDING_DURATION_MS / CHUNK_DURATION_MS)
@@ -27,20 +32,21 @@ NUM_WINDOW_CHUNKS = int(400 / CHUNK_DURATION_MS)  # 400 ms/ 30ms  ge
 NUM_WINDOW_CHUNKS_END = NUM_WINDOW_CHUNKS * 2
 
 START_OFFSET = int(NUM_WINDOW_CHUNKS * CHUNK_DURATION_MS * 0.5 * RATE)
-
-vad = webrtcvad.Vad(2)
+# 第一个参数为敏感系数，取值0-3，越大表示越敏感，越激进，对细微的声音频段都可以识别出来；
+vad = webrtcvad.Vad(1)
 
 pa = pyaudio.PyAudio()
-stream = pa.open(format=FORMAT,
+stream = pa.open(format=FORMAT,  # 打开流式文件
                  channels=CHANNELS,
                  rate=RATE,
                  input=True,
                  start=False,
-                 input_device_index=1,
+                 # input_device_index=2,
                  frames_per_buffer=CHUNK_SIZE)
 
-got_a_sentence = False
-leave = False
+
+got_a_sentence = False  # 是否获取到了完整语音段
+leave = False  # 是否停止录音
 
 
 def handle_int(sig, chunk):
@@ -70,7 +76,7 @@ def normalize(snd_data):
         r.append(int(i * times))
     return r
 
-
+# signal.signal(signalnum, handler)这个模块提供了python内部的信号处理机制，一旦出现signalnum信号，就执行handler函数
 signal.signal(signal.SIGINT, handle_int)
 
 while not leave:
@@ -91,7 +97,7 @@ while not leave:
     print("* recording: ")
     stream.start_stream()
 
-    while not got_a_sentence and not leave:
+    while not got_a_sentence and not leave:  # 一句话没结束并且不停止录音，就检测语音/非语音
         chunk = stream.read(CHUNK_SIZE)
         # add WangS
         raw_data.extend(array('h', chunk))
