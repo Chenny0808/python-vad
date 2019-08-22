@@ -10,6 +10,7 @@
 import collections
 import contextlib
 import sys
+import time
 import wave
 import webrtcvad
 
@@ -42,7 +43,7 @@ class Frame(object):
 
 
 def frame_generator(frame_duration_ms, audio, sample_rate):
-    n = int(sample_rate * (frame_duration_ms / 1000.0) * 2)
+    n = int(sample_rate * (frame_duration_ms / 1000.0) * 2)  # 帧数
     offset = 0
     timestamp = 0.0
     duration = (float(n) / sample_rate) / 2.0
@@ -54,17 +55,17 @@ def frame_generator(frame_duration_ms, audio, sample_rate):
 
 def vad_collector(sample_rate, frame_duration_ms,
                   padding_duration_ms, vad, frames):
-    num_padding_frames = int(padding_duration_ms / frame_duration_ms)
+    num_padding_frames = int(padding_duration_ms / frame_duration_ms)  # 300/30
     ring_buffer = collections.deque(maxlen=num_padding_frames)
     triggered = False
     voiced_frames = []
     for frame in frames:
+        # time.sleep(0.2)
         sys.stdout.write(
-            '1' if vad.is_speech(frame.bytes, sample_rate) else '0')
+            '1' if vad.is_speech(frame.bytes, sample_rate) else '0')  # 判断当前帧是否为语音
         if not triggered:
             ring_buffer.append(frame)
-            num_voiced = len([f for f in ring_buffer
-                              if vad.is_speech(f.bytes, sample_rate)])
+            num_voiced = len([f for f in ring_buffer if vad.is_speech(f.bytes, sample_rate)])
             if num_voiced > 0.9 * ring_buffer.maxlen:
                 sys.stdout.write('+(%s)' % (ring_buffer[0].timestamp,))
                 triggered = True
@@ -75,7 +76,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             ring_buffer.append(frame)
             num_unvoiced = len([f for f in ring_buffer
                                 if not vad.is_speech(f.bytes, sample_rate)])
-            if num_unvoiced > 0.9 * ring_buffer.maxlen:
+            if num_unvoiced > 0.9 * ring_buffer.maxlen:  # 非语音
                 sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
                 triggered = False
                 yield b''.join([f.bytes for f in voiced_frames])
@@ -85,7 +86,11 @@ def vad_collector(sample_rate, frame_duration_ms,
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
     sys.stdout.write('\n')
     if voiced_frames:
-        yield b''.join([f.bytes for f in voiced_frames])
+        yield b''.join([f.bytes for f in voiced_frames])  # 语音
+
+
+def display():
+    pass
 
 
 def main(args):
@@ -96,7 +101,7 @@ def main(args):
     audio, sample_rate = read_wave(args[1])
     vad = webrtcvad.Vad(int(args[0]))
     frames = frame_generator(30, audio, sample_rate)
-    frames = list(frames)
+    frames = list(frames)  # 帧数=int(语音长度/帧长)
     segments = vad_collector(sample_rate, 30, 300, vad, frames)
     for i, segment in enumerate(segments):
         path = 'chunk-%002d.wav' % (i,)
@@ -105,6 +110,5 @@ def main(args):
 
 
 if __name__ == '__main__':
-    # main(sys.argv[1:])
-    args = [1, 'recording.wav']
-    main(args)
+    parm = [1, 'recording.wav']
+    main(parm)
