@@ -24,7 +24,7 @@ CHANNELS = 1  # 声道数：可以是单声道或者是双声道
 RATE = 16000  # 采样频率
 CHUNK_DURATION_MS = 30       # supports 10, 20 and 30 (ms)  # 帧长
 PADDING_DURATION_MS = 1500   # 1 sec jugement
-CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read
+CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read  480个采样点
 CHUNK_BYTES = CHUNK_SIZE * 2  # 16bit = 2 bytes, PCM
 NUM_PADDING_CHUNKS = int(PADDING_DURATION_MS / CHUNK_DURATION_MS)
 # NUM_WINDOW_CHUNKS = int(240 / CHUNK_DURATION_MS)
@@ -79,7 +79,7 @@ def normalize(snd_data):
 # signal.signal(signalnum, handler)这个模块提供了python内部的信号处理机制，一旦出现signalnum信号，就执行handler函数
 signal.signal(signal.SIGINT, handle_int)
 
-while not leave:
+while not leave:  # 录音
     ring_buffer = collections.deque(maxlen=NUM_PADDING_CHUNKS)
     triggered = False
     voiced_frames = []
