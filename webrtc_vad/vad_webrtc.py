@@ -110,5 +110,5 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parm = [3, '/home/guopengcheng/projects/pychram/work/vad/Recorded_data/bus_stop/bus_stop_0.wav']
+    parm = [3, '/home/guopengcheng/projects/pychram/work/vad/Recorded_data/room/room_0.wav']
     main(parm)
