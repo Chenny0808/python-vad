@@ -3,7 +3,7 @@
 # @ Time    :  0:55
 # @ Author  : Chenny
 # @ Email   : 15927299723@163.com
-# @ File    : 2gate.py
+# @ File    : 2gate_gpc.py
 # @ Software: PyCharm
 
 import wave
@@ -32,6 +32,8 @@ def calEnergy(wave_data):
     return energy
 
 
+# from pyAudioAnalysis import audioFeatureExtraction as featEx
+# featEx.stEnergy()
 # 计算过零率
 def calZeroCrossingRate(wave_data):
     zeroCrossingRate = []
@@ -46,6 +48,9 @@ def calZeroCrossingRate(wave_data):
         elif i == len(wave_data) - 1:
             zeroCrossingRate.append(float(sum) / 255)
     return zeroCrossingRate
+
+
+from pyAudioAnalysis import audioFeatureExtraction as featEx
 
 
 # 利用短时能量，短时过零率，使用双门限法进行端点检测
@@ -118,11 +123,11 @@ def endPointDetect(wave_data, energy, zeroCrossingRate):
 
 
 for i in range(10):
-    f = wave.open("./语料/" + str(i + 1) + ".wav", "rb")
+    f = wave.open("./data/" + str(i + 1) + ".wav", "rb")
     # getparams() 一次性返回所有的WAV文件的格式信息
     params = f.getparams()
     # nframes 采样点数目
-    nchannels, sampwidth, framerate, nframes = params[:4]
+    nchannels, sampwidth, framerate, nframes = params[:4]  # 声道数、量化位数、采样频率、采样点总数
     # readframes() 按照采样点读取数据
     str_data = f.readframes(nframes)  # str_data 是二进制字符串
 
@@ -132,19 +137,19 @@ for i in range(10):
     wave_data = np.fromstring(str_data, dtype=np.short)
     print("采样点数目：" + str(len(wave_data)))  # 输出应为采样点数目
     f.close()
-    energy = calEnergy(wave_data)
+    energy = calEnergy(wave_data)  # 计算短时能量
     with open("./energy/" + str(i + 1) + "_en.txt", "w") as f:
-        for en in energy:
+        for en in energy:  # 保存能量值
             f.write(str(en) + "\n")
-    zeroCrossingRate = calZeroCrossingRate(wave_data)
+    zeroCrossingRate = calZeroCrossingRate(wave_data)  # 计算短时过零率
     with open("./zeroCrossingRate/" + str(i + 1) + "_zero.txt", "w") as f:
-        for zcr in zeroCrossingRate:
+        for zcr in zeroCrossingRate:  # 保存短时过零率值
             f.write(str(zcr) + "\n")
     N = endPointDetect(wave_data, energy, zeroCrossingRate)
     # 输出为 pcm 格式
-    with open("./端点检测后的语料/" + str(i + 1) + ".pcm", "wb") as f:
+    with open("./data_ok/" + str(i + 1) + ".pcm", "wb") as f:
         i = 0
         while i < len(N):
-            for num in wave_data[N[i] * 256: N[i + 1] * 256]:
+            for num in wave_data[N[i] * 256: N[i + 1] * 256]:  # 语音起始采样点数，语音结束采样点数
                 f.write(num)
             i = i + 2

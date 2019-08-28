@@ -19,12 +19,13 @@ from struct import pack
 import wave
 import time
 
+
 FORMAT = pyaudio.paInt16  # 定义数据流块
 CHANNELS = 1  # 声道数：可以是单声道或者是双声道
 RATE = 16000  # 采样频率
-CHUNK_DURATION_MS = 30       # supports 10, 20 and 30 (ms)  # 帧长
+CHUNK_DURATION_MS = 30       # supports 10, 20 and 30 (ms)  # 帧长,一帧的时间长度，单位ms
 PADDING_DURATION_MS = 1500   # 1 sec jugement
-CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read  480个采样点
+CHUNK_SIZE = int(RATE * CHUNK_DURATION_MS / 1000)  # chunk to read  480个采样点,一帧包含的frame个数
 CHUNK_BYTES = CHUNK_SIZE * 2  # 16bit = 2 bytes, PCM
 NUM_PADDING_CHUNKS = int(PADDING_DURATION_MS / CHUNK_DURATION_MS)
 # NUM_WINDOW_CHUNKS = int(240 / CHUNK_DURATION_MS)

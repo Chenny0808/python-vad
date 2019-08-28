@@ -3,7 +3,7 @@
 # @ Time    :  0:55
 # @ Author  : Chenny
 # @ Email   : 15927299723@163.com
-# @ File    : 2gate.py
+# @ File    : 2gate_gpc.py
 # @ Software: PyCharm
 
 import wave
@@ -49,9 +49,9 @@ def calZeroCrossingRate(wave_data):
 
 
 # 利用短时能量，短时过零率，使用双门限法进行端点检测
-def endPointDetect(wave_data, energy, zeroCrossingRate):
+def endPointDetect(energy, zeroCrossingRate):
     sum = 0
-    energyAverage = 0
+    # energyAverage = 0
     for en in energy:
         sum = sum + en
     energyAverage = sum / len(energy)
@@ -118,31 +118,23 @@ def endPointDetect(wave_data, energy, zeroCrossingRate):
 
 
 for i in range(10):
-    f = wave.open("./语料/" + str(i + 1) + ".wav", "rb")
-    # getparams() 一次性返回所有的WAV文件的格式信息
-    params = f.getparams()
-    # nframes 采样点数目
-    nchannels, sampwidth, framerate, nframes = params[:4]
+    f = wave.open("./data/" + str(i + 1) + ".wav", "rb")
+    # getparams() 一次性返回所有的WAV文件的格式信息：声道数、量化位数、采样频率、总帧数、压缩类型、
+    nchannels, sampwidth, framerate, nframes, comptype, compname = f.getparams()
     # readframes() 按照采样点读取数据
     str_data = f.readframes(nframes)  # str_data 是二进制字符串
-
     # 以上可以直接写成 str_data = f.readframes(f.getnframes())
+    f.close()
 
     # 转成二字节数组形式（每个采样点占两个字节）
     wave_data = np.fromstring(str_data, dtype=np.short)
     print("采样点数目：" + str(len(wave_data)))  # 输出应为采样点数目
-    f.close()
+
     energy = calEnergy(wave_data)
-    with open("./energy/" + str(i + 1) + "_en.txt", "w") as f:
-        for en in energy:
-            f.write(str(en) + "\n")
     zeroCrossingRate = calZeroCrossingRate(wave_data)
-    with open("./zeroCrossingRate/" + str(i + 1) + "_zero.txt", "w") as f:
-        for zcr in zeroCrossingRate:
-            f.write(str(zcr) + "\n")
     N = endPointDetect(wave_data, energy, zeroCrossingRate)
     # 输出为 pcm 格式
-    with open("./端点检测后的语料/" + str(i + 1) + ".pcm", "wb") as f:
+    with open("./data_ok/" + str(i + 1) + ".pcm", "wb") as f:
         i = 0
         while i < len(N):
             for num in wave_data[N[i] * 256: N[i + 1] * 256]:
